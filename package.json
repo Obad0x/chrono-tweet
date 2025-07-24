@@ -1,0 +1,21 @@
+{
+  "name": "chrono-tweet",
+  "version": "1.0.0",
+  "description": "A free Node.js-based Twitter scheduler that automates tweet posting using Puppeteer (headless browser automation).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.2.0",
+    "node-cron": "^4.2.1",
+    "nodemon": "^3.1.10",
+    "puppeteer": "^24.15.0",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "puppeteer-extra-plugin-user-preferences": "^2.4.1"
+  }
+}
