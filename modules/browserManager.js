@@ -14,12 +14,15 @@ class BrowserManager {
     
     this.browser = await puppeteer.launch({
       headless: false, // Change to true for production
+      userDataDir: './chrome-profile', // Persistent session storage
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-web-security',
         '--disable-features=VizDisplayCompositor',
-        '--disable-blink-features=AutomationControlled'
+        '--disable-blink-features=AutomationControlled',
+        '--no-first-run',
+        '--disable-default-apps'
       ],
       defaultViewport: null
     });

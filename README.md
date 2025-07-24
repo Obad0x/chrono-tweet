@@ -1,252 +1,150 @@
 # Twitter Scheduler with Puppeteer
 
-A free Node.js-based Twitter scheduler that automates tweet posting using Puppeteer (headless browser automation).
+Automate Twitter posts using Node.js and browser automation. **Free alternative to Twitter API.**
 
-## ⚠ IMPORTANT DISCLAIMERS
+## Important Warnings
 
-###  HIGH VOLATILITY WARNING
-This tool is **extremely volatile** and requires constant maintenance:
-
-- **Twitter UI changes frequently** - selectors break regularly
-- **Expect failures** - Twitter updates can break this overnight
-- **Manual updates required** - You'll need to fix selectors monthly/weekly
-- **No guarantees** - This is a reverse-engineering approach that Twitter actively works against
-
-###  Terms of Service & Risks
 - **Violates Twitter's Terms of Service** - Use at your own risk
-- **Account suspension risk** - Twitter may ban accounts using automated tools
-- **Security concerns** - Stores credentials locally
-- **Not production-ready** - Educational/personal use only
+- **Account suspension possible** - Twitter may ban automated accounts
+- **Requires constant updates** - Twitter UI changes break selectors frequently
+- **Educational use only** - Not recommended for production
 
-### 🎯 Recommended Alternatives
-- **Twitter API v2** (Free tier: 1,500 tweets/month)
+## Quick Start
 
-
----
-
-## 🚀 Features
-
-- Schedule tweets with cron expressions
-- CLI interface for tweet management
-- JSON-based tweet storage
-- Human-like posting delays
-- Immediate posting capability
-- Error handling and recovery
-
-##  Installation
-
-### Prerequisites
-- Node.js 16+ installed
-- Chrome/Chromium browser
-
-### Setup
-
-1. **Clone and setup:**
 ```bash
-mkdir twitter-scheduler
+# 1. Clone and install
+git clone [repo-url]
 cd twitter-scheduler
-npm init -y
-npm install puppeteer node-cron dotenv
+npm install puppeteer-extra puppeteer-extra-plugin-stealth node-cron dotenv
+
+# 2. Setup environment
+echo "TWITTER_USERNAME=your_username" > .env
+echo "TWITTER_PASSWORD=your_password" >> .env
+
+# 3. Run
+node index.js
 ```
 
-2. **Create environment file (.env):**
-```env
-TWITTER_USERNAME=your_twitter_username
-TWITTER_PASSWORD=your_twitter_password
+## Project Structure
+
+```
+twitter-scheduler/
+├── index.js                 # Main entry point
+├── tweets.json              # Tweet storage
+├── .env                     # Your credentials
+├── modules/
+│   ├── scheduler.js         # Cron job manager
+│   ├── twitterActions.js    # Browser automation
+│   ├── tweetManager.js      # Tweet CRUD operations
+│   └── browserManager.js    # Browser setup
+├── utils/fileManager.js     # File operations
+└── cli/interface.js         # Command line interface
 ```
 
-3. **Create tweets storage file (tweets.json):**
-```json
-[]
+## CLI Commands
+
+```
+> list              # Show scheduled tweets
+> add               # Add new tweet (interactive)
+> delete 123        # Delete tweet by ID
+> post Hello World  # Post immediately
+> status            # Show scheduler status
+> quit              # Exit
 ```
 
-4. **Add the main script** (save as `twitter-scheduler.js`)
+## Adding Tweets
 
-## 🎮 Usage
-
-### Start the Scheduler
-```bash
-node twitter-scheduler.js
+**Method 1: CLI**
+```
+> add
+📝 Enter tweet content: Hello world! 🌍
+📅 Enter schedule time: 2025-07-24 15:30:00
 ```
 
-### CLI Commands
-- `list` - Show all scheduled tweets
-- `add` - Add new scheduled tweet (interactive)
-- `delete [id]` - Delete scheduled tweet by ID
-- `post [message]` - Post tweet immediately
-- `quit` - Exit application
-
-### Programmatic Usage
-```javascript
-const TwitterScheduler = require('./twitter-scheduler');
-const scheduler = new TwitterScheduler();
-
-// Schedule a tweet
-scheduler.addTweet(
-  'Hello world! 🌍', 
-  '2024-01-15 14:30:00'
-);
-
-// Start scheduler
-scheduler.startScheduler();
-```
-
-## ⚙️ Configuration
-
-### Cron Schedule Examples
-```javascript
-// Every minute
-cron.schedule('* * * * *', callback);
-
-// Every day at 9 AM
-cron.schedule('0 9 * * *', callback);
-
-// Every Monday at 10 AM
-cron.schedule('0 10 * * 1', callback);
-
-// Every hour
-cron.schedule('0 * * * *', callback);
-```
-
-### Tweet JSON Structure
+**Method 2: Edit tweets.json**
 ```json
 [
   {
-    "id": 1642234567890,
-    "content": "My scheduled tweet content",
-    "scheduleTime": "2024-01-15 14:30:00",
+    "id": 1721780520000,
+    "content": "Hello world! 🌍 #nodejs",
+    "scheduleTime": "2025-07-24 15:30:00",
     "posted": false,
-    "createdAt": "2024-01-15T10:00:00.000Z",
-    "postedAt": null
+    "imagePath": "./images/photo.jpg"
   }
 ]
 ```
 
-## 🔧 Troubleshooting
+## Image Support
 
-### Common Issues & Fixes
+```bash
+# 1. Create images folder
+mkdir images
 
-#### 1. Login Failures
-- **Problem:** Can't find login selectors
-- **Fix:** Update selectors in `postTweet()` method
-- **Check:** Twitter's login page HTML structure
-
-#### 2. Tweet Compose Failures
-- **Problem:** Can't find tweet textarea
-- **Fix:** Update `[data-testid="tweetTextarea_0"]` selector
-- **Check:** Twitter's compose tweet HTML
-
-#### 3. Post Button Not Working
-- **Problem:** Can't click tweet button
-- **Fix:** Update `[data-testid="tweetButtonInline"]` selector
-- **Check:** Twitter's tweet button HTML
-
-#### 4. 2FA Issues
-- **Problem:** Two-factor authentication blocking login
-- **Solution:** Disable 2FA or implement 2FA handling code
-
-### Debugging Steps
-1. Set `headless: false` to watch browser actions
-2. Add `await page.screenshot({path: 'debug.png'})` before failures
-3. Use `console.log(await page.content())` to inspect HTML
-4. Check browser console for JavaScript errors
-
-## 🛠️ Maintenance
-
-### Regular Updates Needed
-
-#### Weekly Checks
-- Verify login selectors still work
-- Test tweet posting functionality
-- Update selectors if Twitter UI changed
-
-#### Monthly Tasks
-- Review Twitter's Terms of Service changes
-- Update Puppeteer to latest version
-- Check for new anti-bot measures
-
-#### Selector Update Process
-1. Open Twitter in browser
-2. Inspect elements (F12)
-3. Find new `data-testid` or CSS selectors
-4. Update code with new selectors
-5. Test thoroughly
-
-### Common Selector Updates
-```javascript
-// Login username field
-'[name="text"]' // Current
-'[autocomplete="username"]' // Alternative
-
-// Password field
-'[name="password"]' // Current
-'[type="password"]' // Alternative
-
-// Tweet textarea
-'[data-testid="tweetTextarea_0"]' // Current
-'[role="textbox"][data-testid*="tweet"]' // Alternative
-
-// Tweet button
-'[data-testid="tweetButtonInline"]' // Current
-'[data-testid="tweetButton"]' // Alternative
-```
-
-## 🔐 Security Considerations
-
-- Store credentials in `.env` file (never commit to git)
-- Add `.env` to `.gitignore`
-- Consider using app passwords instead of main password
-- Run on secure, private network only
-- Regularly rotate credentials
-
-## 📝 Development
-
-### Adding Features
-
-#### Image Support
-```javascript
-// Add to postTweet method
-await page.click('[data-testid="attachments"]');
-const fileInput = await page.$('input[type="file"]');
-await fileInput.uploadFile('./image.jpg');
-```
-
-#### Thread Support
-```javascript
-// Add thread functionality
-async postThread(tweets) {
-  for (let i = 0; i < tweets.length; i++) {
-    await this.postTweet(tweets[i]);
-    if (i < tweets.length - 1) {
-      await this.randomDelay(2000, 5000);
-    }
-  }
+# 2. Add image to tweet
+{
+  "content": "Check this out! 📊",
+  "scheduleTime": "2025-07-24 16:00:00",
+  "imagePath": "./images/chart.png"
 }
 ```
 
-## 📄 License
+**Supported formats:** JPG, PNG, GIF, WebP (max 5MB)
 
-MIT License - Use at your own risk
+## Features
 
-## 🤝 Contributing
+- **Persistent Sessions** - Stays logged in, no repeated logins  
+- **Human-like Behavior** - Random delays, realistic typing  
+- **Stealth Mode** - Anti-detection measures  
+- **Image Posting** - Upload photos with tweets  
+- **Cron Scheduling** - Minute-level precision  
+- **Error Recovery** - Handles failures gracefully  
 
-This project requires constant maintenance due to Twitter's changing UI. Contributions welcome:
+## Troubleshooting
 
-1. Fork the repository
-2. Create feature branch
-3. Test thoroughly with current Twitter UI
-4. Submit pull request with selector updates
+### Login Issues
+```bash
+# Delete saved session and retry
+rm -rf chrome-profile
+node index.js
+```
 
-## 📞 Support
+### Selector Errors
+- Twitter UI changes frequently
+- Update selectors in `modules/twitterActions.js`
+- Check screenshots in `./screenshots/` folder
 
-**Important:** This is an educational project. Support is limited due to the volatile nature of web scraping Twitter.
+### Common Fixes
+```javascript
+// Update these selectors when they break:
+'[data-testid="tweetTextarea_0"]'     // Tweet compose area
+'[data-testid="tweetButtonInline"]'   // Tweet button
+'[name="text"]'                       // Username field
+'[name="password"]'                   // Password field
+```
 
-- Open issues for selector updates
-- Share working selector combinations
-- Report new anti-bot measures
+## Maintenance
+
+**Weekly:** Check if selectors still work  
+**Monthly:** Update Puppeteer and dependencies  
+**When broken:** Update selectors in twitterActions.js  
+
+## Production Tips
+
+```bash
+# Run in background with PM2
+npm install -g pm2
+pm2 start index.js --name twitter-bot
+pm2 save && pm2 startup
+```
+
+## Better Alternatives
+
+- **Twitter API v2** - Free tier (1,500 tweets/month)
+- **Buffer** - Free social media scheduler
+- **Hootsuite** - Professional scheduling tool
 
 ---
 
-**Last Updated:** January 2024
-**Twitter UI Compatibility:** Tested with Twitter as of January 2024
-**Next Update Required:** Likely within 2-4 weeks
+**Last Updated:** July 2025  
+**Status:** Working with Twitter UI as of July 2025  
+**Next Update:** Required within 2-4 weeks due to UI changes

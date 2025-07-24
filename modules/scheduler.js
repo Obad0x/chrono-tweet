@@ -122,8 +122,13 @@ class Scheduler {
 
   async cleanup() {
     this.stop();
-    await this.twitterActions.logout();
-    console.log('🧹 Scheduler cleaned up');
+    
+    // Don't logout - preserve session
+    if (this.twitterActions.page) {
+      await this.twitterActions.page.close();
+    }
+    
+    console.log('🧹 Scheduler cleaned up (session preserved)');
   }
 }
 

@@ -7,12 +7,53 @@ class TwitterActions extends BrowserManager {
     this.isLoggedIn = false;
   }
 
+  async checkIfLoggedIn() {
+    try {
+      // Check if we're already on Twitter and logged in
+      const currentUrl = this.page.url();
+      if (currentUrl.includes('twitter.com') || currentUrl.includes('x.com')) {
+        
+        // Look for tweet compose area (indicates logged in)
+        const tweetArea = await this.page.$('[data-testid="tweetTextarea_0"]');
+        if (tweetArea) {
+          console.log('✅ Already logged in, skipping login process');
+          this.isLoggedIn = true;
+          return true;
+        }
+        
+        // Check for login-specific elements
+        const loginButton = await this.page.$('[data-testid="LoginForm_Login_Button"]');
+        if (!loginButton) {
+          console.log('✅ Session appears active, navigating to home');
+          await this.page.goto('https://twitter.com/home', { waitUntil: 'networkidle2' });
+          
+          // Wait and check again
+          await this.page.waitForSelector('[data-testid="tweetTextarea_0"]', { timeout: 10000 });
+          this.isLoggedIn = true;
+          return true;
+        }
+      }
+      
+      return false;
+    } catch (error) {
+      console.log('🔍 Session check failed, will proceed with login');
+      return false;
+    }
+  }
+
   async login() {
-    console.log('🔑 Logging into Twitter...');
+    console.log('🔑 Checking login status...');
     
     if (!this.page) {
       await this.createPage();
     }
+
+    // First check if already logged in
+    if (await this.checkIfLoggedIn()) {
+      return;
+    }
+
+    console.log('🔑 Logging into Twitter...');
 
     try {
       await this.page.goto('https://twitter.com/login', { 
@@ -39,7 +80,7 @@ class TwitterActions extends BrowserManager {
       await this.waitForElement('[data-testid="tweetTextarea_0"]', 15000);
       
       this.isLoggedIn = true;
-      console.log('✅ Successfully logged in');
+      console.log('✅ Successfully logged in (session will be saved)');
       
     } catch (error) {
       console.error('❌ Login failed:', error.message);
@@ -172,14 +213,17 @@ class TwitterActions extends BrowserManager {
   }
 
   async logout() {
-    if (this.page && this.isLoggedIn) {
+    // Don't actually logout - just close gracefully
+    console.log('💾 Preserving session (not logging out)');
+    
+    if (this.page) {
       try {
-        // Navigate to logout or close browser
-        await this.closeBrowser();
-        this.isLoggedIn = false;
-        console.log('👋 Logged out');
+        // Just close the page, keep session data
+        await this.page.close();
+        this.page = null;
+        console.log('📄 Page closed, session preserved');
       } catch (error) {
-        console.warn('⚠️ Logout warning:', error.message);
+        console.warn('⚠️ Page close warning:', error.message);
       }
     }
   }
