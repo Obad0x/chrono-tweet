@@ -28,7 +28,7 @@ class TwitterActions extends BrowserManager {
           await this.page.goto('https://twitter.com/home', { waitUntil: 'networkidle2' });
           
           // Wait and check again
-          await this.page.waitForSelector('[data-testid="tweetTextarea_0"]', { timeout: 10000 });
+          await this.page.waitForSelector('[data-testid="tweetTextarea_0"]', { timeout: 120000 });
           this.isLoggedIn = true;
           return true;
         }
@@ -58,11 +58,11 @@ class TwitterActions extends BrowserManager {
     try {
       await this.page.goto('https://twitter.com/login', { 
         waitUntil: 'networkidle2',
-        timeout: 30000 
+        timeout: 120000  // 2 minutes (120,000 milliseconds)
       });
 
       // Enter username
-      await this.waitForElement('[name="text"]');
+      await this.waitForElement('[name="text"]', 120000);  // 2 minutes
       await this.humanType(this.page, '[name="text"]', process.env.TWITTER_USERNAME);
       
       // Click Next button
@@ -70,14 +70,14 @@ class TwitterActions extends BrowserManager {
       await this.randomDelay(2000, 4000);
 
       // Enter password
-      await this.waitForElement('[name="password"]');
+      await this.waitForElement('[name="password"]', 120000);  // 2 minutes
       await this.humanType(this.page, '[name="password"]', process.env.TWITTER_PASSWORD);
       
       // Click Login button
       await this.clickButtonByText('Log in');
 
       // Wait for home page
-      await this.waitForElement('[data-testid="tweetTextarea_0"]', 15000);
+      await this.waitForElement('[data-testid="tweetTextarea_0"]', 120000);  // 2 minutes
       
       this.isLoggedIn = true;
       console.log('✅ Successfully logged in (session will be saved)');
@@ -116,7 +116,7 @@ class TwitterActions extends BrowserManager {
     
     try {
       // Click tweet textarea
-      await this.waitForElement('[data-testid="tweetTextarea_0"]');
+      await this.waitForElement('[data-testid="tweetTextarea_0"]', 120000);  // 2 minutes
       await this.page.click('[data-testid="tweetTextarea_0"]');
       
       // Type content with human-like delays
@@ -151,7 +151,7 @@ class TwitterActions extends BrowserManager {
         await fileInput.uploadFile(imagePath);
         
         // Wait for upload confirmation
-        await this.waitForElement('[data-testid="removeMedia"]', 10000);
+        await this.waitForElement('[data-testid="removeMedia"]', 120000);  // 2 minutes
         console.log('✅ Image uploaded successfully');
         
         await this.randomDelay(2000, 4000);
@@ -175,7 +175,7 @@ class TwitterActions extends BrowserManager {
       await this.page.waitForFunction(
         () => !document.querySelector('[data-testid="tweetTextarea_0"]')?.value ||
               document.querySelector('[data-testid="tweetTextarea_0"]')?.value === '',
-        { timeout: 10000 }
+        { timeout: 120000 }  // 2 minutes
       );
       
       console.log('✅ Tweet published successfully!');

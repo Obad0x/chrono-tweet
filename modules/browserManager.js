@@ -83,7 +83,7 @@ class BrowserManager {
     }
   }
 
-  async waitForElement(selector, timeout = 10000) {
+  async waitForElement(selector, timeout = 120000) {  // Default 2 minutes
     if (!this.page) throw new Error('Page not initialized');
     return await this.page.waitForSelector(selector, { timeout });
   }
